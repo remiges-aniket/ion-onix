@@ -32,6 +32,35 @@ services:
       - ../schemas:/app/schemas
     command: [ "./server", "--config=/app/config/local-simple-bpp.yaml" ]
 
+  loca-lt:
+    image: node:20-alpine
+    container_name: loca-lt
+    profiles:
+      - localtunnel
+    networks:
+      - beckn_network
+    depends_on:
+      - onix-bap
+    volumes:
+      - ./config:/app/config:ro
+    command:
+      - sh
+      - -c
+      - |
+        SUBDOMAIN=$$(node <<'NODE'
+        const fs = require('fs');
+        const content = fs.readFileSync('/app/config/loca_lt_config.yaml', 'utf8');
+        const match = content.match(/^\s*subdomain\s*:\s*["']?([^"'\n#]+)["']?/m);
+        if (match) console.log(match[1].trim());
+        NODE
+        )
+        if [ -z "$$SUBDOMAIN" ]; then
+          echo "Missing subdomain in /app/config/loca_lt_config.yaml" >&2
+          exit 1
+        fi
+        npx -y localtunnel --port 8082 --local-host onix-bpp --subdomain "$$SUBDOMAIN"
+
+
 networks:
   beckn_network:
     name: beckn_network
