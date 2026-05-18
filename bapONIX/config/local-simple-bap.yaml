@@ -40,12 +40,12 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: sandbox.food-finder.com
-            keyId: 76EU8y5vi36wsggHNp46dGVqEKEJ4Up7jj3fJ2nxUD7AXAh47gVEDF
-            signingPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            signingPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
-            encrPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            encrPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
+            networkParticipant: 'abc'
+            keyId: 'jkl'
+            signingPrivateKey: 'def'
+            signingPublicKey: 'ghi'
+            encrPrivateKey: 'def'
+            encrPublicKey: 'ghi'
         schemaValidator:
           id: schemav2validator
           config:
@@ -100,12 +100,12 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: sandbox.food-finder.com
-            keyId: 76EU8y5vi36wsggHNp46dGVqEKEJ4Up7jj3fJ2nxUD7AXAh47gVEDF
-            signingPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            signingPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
-            encrPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            encrPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
+            networkParticipant: 'abc'
+            keyId: 'jkl'
+            signingPrivateKey: 'def'
+            signingPublicKey: 'ghi'
+            encrPrivateKey: 'def'
+            encrPublicKey: 'ghi'
         schemaValidator:
           id: schemav2validator
           config:
