@@ -49,7 +49,7 @@ services:
       - beckn_network
     restart: unless-stopped
 
-  loca-lt:
+  loca-lt-bpp:
     image: node:20-alpine
     container_name: loca-lt
     profiles:
