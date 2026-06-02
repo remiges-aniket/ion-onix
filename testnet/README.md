@@ -1,6 +1,6 @@
-## Devkit
+## ION Testnet
 
-A developer toolkit for building and testing applications on the **beckn local retail testnet**. This devkit provides a pre-configured adapter stack and ready-to-use Postman collections to help you get started quickly.
+Inspired by the [Beckn local retail devkit and testnet](https://github.com/beckn/local-retail/tree/main/testnet/retail-devkit), the ion Testnet provides a docker compose based all in one development and testing platform for ION (Indonesia Open Network)
 
 ---
 
@@ -19,7 +19,7 @@ A developer toolkit for building and testing applications on the **beckn local r
 
 ## Overview
 
-The Retail Devkit enables developers to simulate and test decentralised retail transactions over the beckn protocol. It bundles a Docker-based adapter setup and Postman collections so you can spin up a local environment and begin making beckn-compliant API calls within minutes.
+The ION Testnet enables developers to simulate and test decentralised commerce transactions in different sectors over the beckn protocol. It bundles together a docker compose based network containing the ONIX adapters, simulated seller apps, thin monitoring service for troubleshooting. In addition additional guides and postman collections are provided to help developers quickly build Buyer Apps and Seller Apps.
 
 ---
 
@@ -39,31 +39,30 @@ Before you begin, ensure the following tools are installed on your system:
 ## Repository Structure
 
 ```text
-retail-devkit/
+testnet/
 ├── config/          # Configuration files for the adapter
-├── install/         # Docker Compose files for standing up the stack
-│   └── docker-compose-adapter.yml
-├── postman/         # Postman collections for testing
-└── schemas/         # JSON schemas for request/response validation
+├── docker-compose-testnet.yml  # docker compose 
+└── postman/         # Postman collections for testing
 ```
 
 ---
 
 ## Quick Start
 
-Follow these steps to get the devkit running locally:
+Follow these steps to get the ION testnet running locally:
 
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/beckn/local-retail.git
-cd local-retail/testnet/retail-devkit/install
+git clone https://github.com/indonesiaopennetwork/ion-onix.git
+cd ion-onix
 ```
 
 **2. Start the adapter stack**
 
 ```bash
-docker compose -f docker-compose-adapter.yml up --build
+cd testnet
+docker compose -f docker-compose-testnet.yml up --build
 ```
 
 This command builds and starts all required services. The first run may take a few minutes to pull and build Docker images.
@@ -82,7 +81,7 @@ All services should show a `running` or `healthy` status.
 
 ## Importing Postman Collections
 
-The `postman/` directory contains pre-built collections for testing the retail APIs.
+The `postman/` directory contains pre-built collections for testing the ION APIs in various sectors.
 
 **Step 1 — Open Postman**
 
@@ -113,9 +112,9 @@ The collections are ordered to reflect a typical beckn transaction flow (for exa
 
 ## Architecture
 
-The devkit simulates a beckn-compliant BAP (Beckn Application Platform) and BPP (Beckn Provider Platform) adapter pair locally. Here is a high-level overview of the data flow:
+The devkit simulates a beckn-compliant Buyer App (BAP-Beckn Application Platform) and Seller App (BPP-Beckn Provider Platform) ONIX adapter pair locally. Here is a high-level overview of the data flow:
 
-<img src="./resources/architecture.png" width="70%" />
+<img src="./resources/ion-testnet-na.png" width="70%" />
 
 ---
 
@@ -126,7 +125,7 @@ The devkit simulates a beckn-compliant BAP (Beckn Application Platform) and BPP 
 Check for port conflicts. Inspect logs with:
 
 ```bash
-docker compose -f docker-compose-adapter.yml logs
+docker compose -f docker-compose-testnet.yml logs
 ```
 
 **Postman requests return connection errors**
@@ -140,12 +139,12 @@ Make sure Docker has sufficient resources allocated (RAM/CPU) and that you have 
 **Stopping the stack**
 
 ```bash
-docker compose -f docker-compose-adapter.yml down
+docker compose -f docker-compose-testnet.yml down
 ```
 
 ---
 
 ## License
 
-This project is part of the beckn open protocol ecosystem. Refer to the root repository for license details.
+This project is part of the Indonesia Open Network ecosystem. Refer to the root repository for license details.
 
