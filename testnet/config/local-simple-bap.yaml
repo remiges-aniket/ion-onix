@@ -1,4 +1,4 @@
-appName: "onix-local"
+appName: "ion-dc-bap-onix"
 log:
   level: debug
   destinations:
@@ -40,12 +40,12 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: sandbox.food-finder.com
-            keyId: 76EU8y5vi36wsggHNp46dGVqEKEJ4Up7jj3fJ2nxUD7AXAh47gVEDF
-            signingPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            signingPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
-            encrPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            encrPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
+            networkParticipant: dc-bap.ion.id
+            keyId: 76EU7JHvbQGBL8UnkKpKK32MMnCbnjjkPftuCcBJ7DULsxVq53NJRz
+            signingPrivateKey: THNHFIGWN8IutTzeWWNPCgSeDIfZjv/C80AoRClSMc8=
+            signingPublicKey: jnSciDWwaDwcvzxMuacsOEvO7g/6TdD/cf4OJrwCZjA=
+            encrPrivateKey: THNHFIGWN8IutTzeWWNPCgSeDIfZjv/C80AoRClSMc8=
+            encrPublicKey: jnSciDWwaDwcvzxMuacsOEvO7g/6TdD/cf4OJrwCZjA=
         schemaValidator:
           id: schemav2validator
           config:
@@ -56,7 +56,7 @@ modules:
             extendedSchema_cacheTTL: "86400"
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
-            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io,schema.ion.id"
         cache:
           id: cache
           config:
@@ -100,12 +100,12 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: sandbox.food-finder.com
-            keyId: 76EU8y5vi36wsggHNp46dGVqEKEJ4Up7jj3fJ2nxUD7AXAh47gVEDF
-            signingPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            signingPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
-            encrPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            encrPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
+            networkParticipant: dc-bap.ion.id
+            keyId: 76EU7JHvbQGBL8UnkKpKK32MMnCbnjjkPftuCcBJ7DULsxVq53NJRz
+            signingPrivateKey: THNHFIGWN8IutTzeWWNPCgSeDIfZjv/C80AoRClSMc8=
+            signingPublicKey: jnSciDWwaDwcvzxMuacsOEvO7g/6TdD/cf4OJrwCZjA=
+            encrPrivateKey: THNHFIGWN8IutTzeWWNPCgSeDIfZjv/C80AoRClSMc8=
+            encrPublicKey: jnSciDWwaDwcvzxMuacsOEvO7g/6TdD/cf4OJrwCZjA=
         schemaValidator:
           id: schemav2validator
           config:
@@ -116,7 +116,7 @@ modules:
             extendedSchema_cacheTTL: "86400"
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
-            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io,schema.ion.id"
         cache:
           id: cache
           config:
