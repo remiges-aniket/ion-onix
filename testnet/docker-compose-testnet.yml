@@ -34,8 +34,8 @@ services:
       RABBITMQ_USER: admin
       RABBITMQ_PASS: admin123
     volumes:
-      - ../config:/app/config
-      - ../schemas:/app/schemas
+      - ./config:/app/config
+      - ./schemas:/app/schemas
     command: [ "./server", "--config=/app/config/local-simple-bap.yaml" ]
 
   onix-bpp:
@@ -55,9 +55,10 @@ services:
       RABBITMQ_USER: admin
       RABBITMQ_PASS: admin123
     volumes:
-      - ../config:/app/config
-      - ../schemas:/app/schemas
+      - ./config:/app/config
+      - ./schemas:/app/schemas
     command: [ "./server", "--config=/app/config/local-simple-bpp.yaml" ]
+    
   sandbox-bap:
     container_name: sandbox-bap
     image: fidedocker/sandbox-2.0:latest
@@ -78,7 +79,7 @@ services:
 
   sandbox-bpp:
     container_name: sandbox-bpp
-    image: fidedocker/sandbox-2.0:latest
+    image: ionregistry/beckn-sandbox-2.0:latest
     platform: linux/amd64
     environment:
       - NODE_ENV=production

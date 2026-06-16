@@ -1,18 +1,15 @@
-## ionONIX Repo
+## ion-onix Repository
 
 ### Introduction
-This repository contain files required to setup ONIX adapters and sandbox networks. It contains the following folders
+This repository contain files required to setup ONIX adapters and tools to help developers build applications on ION(Indonesia Open Network). It contains the following folders
 
-**bapONIX** - Contains the BAP ONIX Adapter. Used to build and run Buyer App
+- **bapONIX** - Contains the BAP ONIX Adapter. Used to integrate Buyer App into ION network.
 
-**bppONIX** - Contains the BPP ONIX Adapter. Used to build and run Seller App
+- **bppONIX** - Contains the BPP ONIX Adapter. Used to integrate Seller App into ION network. 
 
-**mockNetwork** - Contains a sandbox ION Network. Used to understand message communication, try out sample postman collection etc.
+- **testnet** - Contains a sandbox ION Network. Used to understand message communication, try out sample postman collection, develop on local machine etc.
 
-**postman** - Contains postman collection to trigger and test messages
-
-**common** - Contains common utilities such as key generator etc. 
-
+- **common** - Contains common utilities such as key generator etc. 
 
 
 ### Running both BAP and BPP individually on the same machine

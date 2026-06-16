@@ -1,4 +1,4 @@
-appName: "onix-local"
+appName: "ion-dc-bpp-onix"
 log:
   level: debug
   destinations:
@@ -9,7 +9,7 @@ log:
     - subscriber_id
     - module_id
 http:
-  port: 8081
+  port: 8082
   timeout:
     read: 30
     write: 30
@@ -17,11 +17,11 @@ http:
 pluginManager:
   root: ./plugins
 modules:
-  - name: bapTxnReceiver
-    path: /bap/receiver/
+  - name: bppTxnReceiver
+    path: /bpp/receiver/
     handler:
       type: std
-      role: bap
+      role: bpp
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200
@@ -40,23 +40,23 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: sandbox.food-finder.com
-            keyId: 76EU8y5vi36wsggHNp46dGVqEKEJ4Up7jj3fJ2nxUD7AXAh47gVEDF
-            signingPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            signingPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
-            encrPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            encrPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
+            networkParticipant: dc-bpp.ion.id
+            keyId: 76EU8z1BjLQq4ekBtv6SFK6XUQYackt5UysrnNJKAsRLSiFYuj69JR
+            signingPrivateKey: 08u86+Md7aSViZQcsQdIjHmfnHDA+BxRr65HFFWx1zI=
+            signingPublicKey: UN+/l/SyXyPuF6Fk7tLYkwK/9oHDauCSeRdNB8ocvaA=
+            encrPrivateKey: 08u86+Md7aSViZQcsQdIjHmfnHDA+BxRr65HFFWx1zI=
+            encrPublicKey: UN+/l/SyXyPuF6Fk7tLYkwK/9oHDauCSeRdNB8ocvaA=
         schemaValidator:
           id: schemav2validator
           config:
             type: url
             location: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
             cacheTTL: "3600"
-            extendedSchema_enabled: "true"
+            extendedSchema_enabled: "false"
             extendedSchema_cacheTTL: "86400"
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
-            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io,schema.ion.id"
         cache:
           id: cache
           config:
@@ -66,22 +66,17 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-simple-routing-BAPReceiver.yaml
-        middleware:
-          - id: reqpreprocessor
-            config:
-              uuidKeys: transaction_id,message_id
-              role: bap
+            routingConfig: ./config/local-simple-routing-BPPReceiver.yaml
       steps:
         - validateSign
         - addRoute
         - validateSchema
   
-  - name: bapTxnCaller
-    path: /bap/caller/
+  - name: bppTxnCaller
+    path: /bpp/caller/
     handler:
       type: std
-      role: bap
+      role: bpp
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200
@@ -100,12 +95,12 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: sandbox.food-finder.com
-            keyId: 76EU8y5vi36wsggHNp46dGVqEKEJ4Up7jj3fJ2nxUD7AXAh47gVEDF
-            signingPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            signingPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
-            encrPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            encrPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
+            networkParticipant: dc-bpp.ion.id
+            keyId: 76EU8z1BjLQq4ekBtv6SFK6XUQYackt5UysrnNJKAsRLSiFYuj69JR
+            signingPrivateKey: 08u86+Md7aSViZQcsQdIjHmfnHDA+BxRr65HFFWx1zI=
+            signingPublicKey: UN+/l/SyXyPuF6Fk7tLYkwK/9oHDauCSeRdNB8ocvaA=
+            encrPrivateKey: 08u86+Md7aSViZQcsQdIjHmfnHDA+BxRr65HFFWx1zI=
+            encrPublicKey: UN+/l/SyXyPuF6Fk7tLYkwK/9oHDauCSeRdNB8ocvaA=
         schemaValidator:
           id: schemav2validator
           config:
@@ -116,7 +111,7 @@ modules:
             extendedSchema_cacheTTL: "86400"
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
-            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io,schema.ion.id"
         cache:
           id: cache
           config:
@@ -124,16 +119,15 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-simple-routing-BAPCaller.yaml
+            routingConfig: ./config/local-simple-routing-BPPCaller.yaml
         signer:
           id: signer
         middleware:
           - id: reqpreprocessor
             config:
               uuidKeys: transaction_id,message_id
-              role: bap
+              role: bpp          
       steps:
         - addRoute
         - sign
         - validateSchema
-  
