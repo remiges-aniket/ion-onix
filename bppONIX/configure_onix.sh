@@ -3,7 +3,7 @@
 set -euo pipefail
 
 CONFIG_FILE="config/local-simple-bpp.yaml"
-LOCAL_TUNNEL_CONFIG_FILE="config/loca_lt_config.yaml"
+ROUTING_RECEIVER_FILE="config/local-simple-routing-BPPReceiver.yaml"
 ENV_FILE=".env"
 
 # Return a YAML-safe single-quoted scalar.
@@ -13,53 +13,42 @@ yaml_quote() {
   printf "'%s'" "$value"
 }
 
-upsert_local_tunnel_subdomain() {
-  local config_file=$1
-  local subdomain=$2
-  local tmp_file
 
-  tmp_file=$(mktemp "${config_file}.XXXXXX")
-
-  if [[ -f "$config_file" ]]; then
-    awk -v value="$(yaml_quote "$subdomain")" '
-      BEGIN { found = 0 }
-      /^[[:space:]]*subdomain[[:space:]]*:/ {
-        print "subdomain: " value
-        found = 1
-        next
-      }
-      { print }
-      END {
-        if (!found) {
-          print "subdomain: " value
-        }
-      }
-    ' "$config_file" > "$tmp_file"
-  else
-    printf 'subdomain: %s\n' "$(yaml_quote "$subdomain")" > "$tmp_file"
-  fi
-
-  mv "$tmp_file" "$config_file"
-}
-
-
-set_local_tunnel_compose_profile() {
+set_ngrok_compose_profile() {
+  local authtoken=$1
+  local domain=$2
   touch "$ENV_FILE"
 
   if grep -q '^COMPOSE_PROFILES=' "$ENV_FILE"; then
-    sed -i.bak 's/^COMPOSE_PROFILES=.*/COMPOSE_PROFILES=localtunnel/' "$ENV_FILE"
+    sed -i.bak 's/^COMPOSE_PROFILES=.*/COMPOSE_PROFILES=ngrok/' "$ENV_FILE"
     rm -f "${ENV_FILE}.bak"
   else
-    printf '\nCOMPOSE_PROFILES=localtunnel\n' >> "$ENV_FILE"
+    printf '\nCOMPOSE_PROFILES=ngrok\n' >> "$ENV_FILE"
+  fi
+
+  if grep -q '^NGROK_AUTHTOKEN=' "$ENV_FILE"; then
+    sed -i.bak "s/^NGROK_AUTHTOKEN=.*/NGROK_AUTHTOKEN=${authtoken}/" "$ENV_FILE"
+    rm -f "${ENV_FILE}.bak"
+  else
+    printf 'NGROK_AUTHTOKEN=%s\n' "$authtoken" >> "$ENV_FILE"
+  fi
+
+  if grep -q '^NGROK_DOMAIN=' "$ENV_FILE"; then
+    sed -i.bak "s/^NGROK_DOMAIN=.*/NGROK_DOMAIN=${domain}/" "$ENV_FILE"
+    rm -f "${ENV_FILE}.bak"
+  else
+    printf 'NGROK_DOMAIN=%s\n' "$domain" >> "$ENV_FILE"
   fi
 }
 
-unset_local_tunnel_compose_profile() {
+unset_ngrok_compose_profile() {
   if [[ ! -f "$ENV_FILE" ]]; then
     return 0
   fi
 
-  sed -i.bak '/^COMPOSE_PROFILES=localtunnel$/d' "$ENV_FILE"
+  sed -i.bak '/^COMPOSE_PROFILES=ngrok$/d' "$ENV_FILE"
+  sed -i.bak '/^NGROK_AUTHTOKEN=/d' "$ENV_FILE"
+  sed -i.bak '/^NGROK_DOMAIN=/d' "$ENV_FILE"
   rm -f "${ENV_FILE}.bak"
 
   # Remove the file only if it is empty or contains whitespace only.
@@ -326,6 +315,12 @@ update_onix_config() {
         }
       }
 
+      # Update subscriberId at handler level (outside keyManager.config)
+      if (line ~ /^[[:space:]]*subscriberId[[:space:]]*:/) {
+        print sprintf("%*ssubscriberId: %s", indent, "", subscriber_id)
+        next
+      }
+
       print line
     }
 
@@ -339,18 +334,41 @@ update_onix_config() {
   upsert_otelsetup_producer "$config_file" "$subscriber_id"
 }
 
-echo "Welcome to ONIX configuration!!"
-echo "Enter the ONIX configuration details. These will be available in the keys section of the ION Central Devlabs portal."
+# Replace the url: value in a routing config file (all occurrences).
+update_routing_url() {
+  local config_file=$1
+  local new_url=$2
+  local tmp_file
+
+  tmp_file=$(mktemp "${config_file}.XXXXXX")
+
+  awk -v url="$new_url" '
+    /^[[:space:]]*url[[:space:]]*:/ {
+      match($0, /^[[:space:]]*/)
+      print sprintf("%*surl: \"%s\"", RLENGTH, "", url)
+      next
+    }
+    { print }
+  ' "$config_file" > "$tmp_file"
+
+  mv "$tmp_file" "$config_file"
+}
+
+echo "Welcome to BPP ONIX configuration!"
+echo
+echo "Enter the values from the Keys tab of the ION Central Devlabs portal."
+echo "Your ngrok static domain is your subscriber_id (e.g. clever-mongoose-freely.ngrok-free.app)."
 echo
 
-read -rp "subscriber_id: " SUBSCRIBER_ID
-read -rp "private_key: " PRIVATE_KEY
-read -rp "public_key: " PUBLIC_KEY
-read -rp "keyId: " KEY_ID
+read -rp "subscriber_id (your ngrok static domain): " SUBSCRIBER_ID
+read -rp "private_key (base64, from downloaded key file): " PRIVATE_KEY
+read -rp "public_key (base64, from ION Central Keys tab): " PUBLIC_KEY
+read -rp "keyId (from ION Central Keys tab): " KEY_ID
 
 echo
-echo "This script will modify ONIX configuration at:"
-echo "  config/*.yml"
+echo "This script will update:"
+echo "  $CONFIG_FILE"
+echo "  $ROUTING_RECEIVER_FILE"
 echo
 
 read -rp "Do you want to proceed? (yes/no): " CONFIRM
@@ -372,53 +390,64 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
 fi
 
 TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
-
 BACKUP_DIR="config/backup"
 mkdir -p "$BACKUP_DIR"
 
+# Backup and update main ONIX config
 BACKUP_FILE="${BACKUP_DIR}/local-simple-bpp.${TIMESTAMP}.bak"
-
 cp "$CONFIG_FILE" "$BACKUP_FILE"
-
 update_onix_config "$CONFIG_FILE" "$SUBSCRIBER_ID" "$PRIVATE_KEY" "$PUBLIC_KEY" "$KEY_ID"
 
 echo
-echo "Current configuration has been backed up to:"
-echo "  $BACKUP_FILE"
+echo "Main config backed up to:  $BACKUP_FILE"
+echo "Main config updated:       $CONFIG_FILE"
+
+# Seller app webhook URL
 echo
-echo "Configuration has been updated successfully in:"
-echo "  $CONFIG_FILE"
+echo "The Seller App Webhook URL is where the adapter forwards incoming Beckn requests"
+echo "(discover, select, init, etc.) to your seller application."
+echo "If your app runs on the same machine as Docker, use host.docker.internal"
+echo "instead of localhost (e.g. http://host.docker.internal:3002/api/webhook)."
+echo
+read -rp "Seller app webhook URL [http://host.docker.internal:3002/api/webhook]: " SELLER_APP_URL
+SELLER_APP_URL="${SELLER_APP_URL:-http://host.docker.internal:3002/api/webhook}"
 
-echo "Local tunnel support lets a server running on your laptop receive traffic from the public internet through a stable tunnel URL."
-read -rp "Do you need local tunnel support? (yes/no): " NEED_LOCAL_TUNNEL
-NEED_LOCAL_TUNNEL_LOWER=$(echo "$NEED_LOCAL_TUNNEL" | tr '[:upper:]' '[:lower:]')
+if [[ -f "$ROUTING_RECEIVER_FILE" ]]; then
+  ROUTING_BACKUP="${BACKUP_DIR}/local-simple-routing-BPPReceiver.${TIMESTAMP}.bak"
+  cp "$ROUTING_RECEIVER_FILE" "$ROUTING_BACKUP"
+  update_routing_url "$ROUTING_RECEIVER_FILE" "$SELLER_APP_URL"
+  echo
+  echo "Receiver routing backed up to: $ROUTING_BACKUP"
+  echo "Receiver routing updated:      $ROUTING_RECEIVER_FILE"
+fi
 
-case "$NEED_LOCAL_TUNNEL_LOWER" in
+# ngrok tunnel setup
+echo
+echo "ngrok provides a stable public URL so the ION network can reach your BPP adapter."
+echo "Get your authtoken at: https://dashboard.ngrok.com/get-started/your-authtoken"
+read -rp "Do you need ngrok tunnel support? (yes/no): " NEED_NGROK
+NEED_NGROK_LOWER=$(echo "$NEED_NGROK" | tr '[:upper:]' '[:lower:]')
+
+case "$NEED_NGROK_LOWER" in
   yes|y)
-    read -rp "local tunnel subdomain: " LOCAL_TUNNEL_SUBDOMAIN
+    read -rp "ngrok authtoken (from https://dashboard.ngrok.com/get-started/your-authtoken): " NGROK_AUTHTOKEN
+    read -rp "ngrok static domain (from https://dashboard.ngrok.com/domains, e.g. clever-mongoose-freely.ngrok-free.app): " NGROK_DOMAIN
 
-    mkdir -p config
-
-    upsert_local_tunnel_subdomain "$LOCAL_TUNNEL_CONFIG_FILE" "$LOCAL_TUNNEL_SUBDOMAIN"
-
-    set_local_tunnel_compose_profile
+    set_ngrok_compose_profile "$NGROK_AUTHTOKEN" "$NGROK_DOMAIN"
 
     echo
-    echo "Local tunnel configuration has been updated in:"
-    echo "  $LOCAL_TUNNEL_CONFIG_FILE"
-    echo "Docker Compose profile has been set in:"
-    echo "  $ENV_FILE"
+    echo "ngrok settings written to: $ENV_FILE"
+    echo "Your BPP will be publicly accessible at: https://${NGROK_DOMAIN}"
+    echo "Use 'https://${NGROK_DOMAIN}' as your subscriber_id when registering on ION Central."
     echo
     ;;
   *)
-    echo "Continuing without local tunnel support."
-
-    unset_local_tunnel_compose_profile
-
-    echo "Docker Compose local tunnel profile has been removed from:"
-    echo "  $ENV_FILE"
+    echo "Continuing without ngrok support."
+    unset_ngrok_compose_profile
+    echo "ngrok profile removed from: $ENV_FILE"
     echo
     ;;
 esac
 
-echo "Use ' docker compose -f docker-compose-BPPAdapter.yaml up --build -d' to run the BPP ONIX adapter"
+echo "Run the adapter with:"
+echo "  docker compose -f docker-compose-BPPAdapter.yml up --build -d"

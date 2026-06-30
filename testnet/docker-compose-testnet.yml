@@ -3,7 +3,6 @@ services:
   # Core Infrastructure Services
   # ============================================
 
-  # Redis - Caching Service
   redis:
     image: redis:alpine
     container_name: redis
@@ -16,6 +15,10 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+
+  # ============================================
+  # ONIX Adapters
+  # ============================================
 
   onix-bap:
     image: fidedocker/onix-adapter:latest
@@ -37,6 +40,9 @@ services:
       - ./config:/app/config
       - ./schemas:/app/schemas
     command: [ "./server", "--config=/app/config/local-simple-bap.yaml" ]
+    depends_on:
+      redis:
+        condition: service_healthy
 
   onix-bpp:
     image: fidedocker/onix-adapter:latest
@@ -58,42 +64,67 @@ services:
       - ./config:/app/config
       - ./schemas:/app/schemas
     command: [ "./server", "--config=/app/config/local-simple-bpp.yaml" ]
-    
-  sandbox-bap:
-    container_name: sandbox-bap
-    image: fidedocker/sandbox-2.0:latest
-    platform: linux/amd64
-    environment:
-      - NODE_ENV=production
-      - PORT=3001
-    ports:
-      - "3001:3001"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/health"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-      start_period: 10s
-    networks:
-      - beckn_network
+    depends_on:
+      redis:
+        condition: service_healthy
 
-  sandbox-bpp:
-    container_name: sandbox-bpp
-    image: ionregistry/beckn-sandbox-2.0:latest
+  # ============================================
+  # Seller App (BPP backend) — replaces sandbox-bpp
+  # ============================================
+
+  seller-app:
+    container_name: seller-app
+    build:
+      context: ../sellerApp
+      dockerfile: Dockerfile
     platform: linux/amd64
     environment:
-      - NODE_ENV=production
       - PORT=3002
+      - BPP_CALLER_URL=http://onix-bpp:8082/bpp/caller
+      - BPP_ID=dc-bpp.ion.id
+      - BPP_URI=http://onix-bpp:8082/bpp/receiver
+      - NETWORK_ID=ion.id/ION-DC-Registry
     ports:
       - "3002:3002"
+    networks:
+      - beckn_network
+    depends_on:
+      - onix-bpp
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3002/api/health"]
       interval: 10s
       timeout: 3s
       retries: 5
-      start_period: 10s
+      start_period: 15s
+
+  # ============================================
+  # Buyer App (BAP backend) — replaces sandbox-bap
+  # ============================================
+
+  buyer-app:
+    container_name: buyer-app
+    build:
+      context: ../buyerApp
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    environment:
+      - PORT=3001
+      - BAP_CALLER_URL=http://onix-bap:8081/bap/caller
+      - BAP_ID=dc-bap.ion.id
+      - BAP_URI=http://onix-bap:8081/bap/receiver
+      - NETWORK_ID=ion.id/ION-DC-Registry
+    ports:
+      - "3001:3001"
     networks:
       - beckn_network
+    depends_on:
+      - onix-bap
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
 
 networks:
   beckn_network:

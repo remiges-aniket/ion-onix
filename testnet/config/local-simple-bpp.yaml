@@ -16,6 +16,16 @@ http:
     idle: 30
 pluginManager:
   root: ./plugins
+plugins:
+  otelsetup:
+    id: otelsetup
+    config:
+      serviceName: "beckn-onix-bpp-testnet"
+      enableMetrics: "false"
+      enableTracing: "false"
+      enableLogs: "false"
+      producer: 'dc-bpp.ion.id'
+      producerType: "bpp"
 modules:
   - name: bppTxnReceiver
     path: /bpp/receiver/
@@ -77,6 +87,7 @@ modules:
     handler:
       type: std
       role: bpp
+      subscriberId: dc-bpp.ion.id
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200

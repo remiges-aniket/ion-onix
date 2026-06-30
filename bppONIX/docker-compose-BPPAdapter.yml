@@ -39,7 +39,7 @@ services:
   otel-collector-bpp:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector-bpp
-    command: ["--config=/etc/otel/config.yaml"]
+    command: [ "--config=/etc/otel/config.yaml" ]
     volumes:
       - ./config/otel-collector-bpp/config.yaml:/etc/otel/config.yaml:ro
     ports:
@@ -49,34 +49,53 @@ services:
       - beckn_network
     restart: unless-stopped
 
-  loca-lt-bpp:
-    image: node:20-alpine
-    container_name: loca-lt
+  seller-app:
+    build:
+      context: ../sellerApp
+      dockerfile: Dockerfile
+    container_name: seller-app
+    networks:
+      - beckn_network
+    ports:
+      - "3002:3002"
+    environment:
+      BPP_CALLER_URL: http://onix-bpp:8082/bpp/caller
+      BPP_ID: ${NGROK_DOMAIN}
+      # nginx-bpp prepends /bpp/receiver/ to every request, so no path needed here
+      BPP_URI: https://${NGROK_DOMAIN}
+      NETWORK_ID: ion.id/ION-DC-Registry
+      PORT: "3002"
+    depends_on:
+      onix-bpp:
+        condition: service_started
+    restart: unless-stopped
+
+  nginx-bpp:
+    image: nginx:alpine
+    container_name: nginx-bpp
+    networks:
+      - beckn_network
+    volumes:
+      - ./config/nginx-bpp.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - onix-bpp
+    restart: unless-stopped
+
+  ngrok-bpp:
+    image: ngrok/ngrok:latest
+    container_name: ngrok-bpp
     profiles:
-      - localtunnel
+      - ngrok
     networks:
       - beckn_network
     depends_on:
-      - onix-bpp
-    volumes:
-      - ./config:/app/config:ro
-    command:
-      - sh
-      - -c
-      - |
-        SUBDOMAIN=$$(node <<'NODE'
-        const fs = require('fs');
-        const content = fs.readFileSync('/app/config/loca_lt_config.yaml', 'utf8');
-        const match = content.match(/^\s*subdomain\s*:\s*["']?([^"'\n#]+)["']?/m);
-        if (match) console.log(match[1].trim());
-        NODE
-        )
-        if [ -z "$$SUBDOMAIN" ]; then
-          echo "Missing subdomain in /app/config/loca_lt_config.yaml" >&2
-          exit 1
-        fi
-        npx -y localtunnel --port 8082 --local-host onix-bpp --subdomain "$$SUBDOMAIN"
-
+      - nginx-bpp
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    command: http --url=${NGROK_DOMAIN} http://nginx-bpp:80
+    ports:
+      - "4040:4040"
+    restart: unless-stopped
 
 networks:
   beckn_network:

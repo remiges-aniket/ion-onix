@@ -2,11 +2,13 @@ routingRules:
   - version: "2.0.0"
     targetType: "url"
     target:
-      url: "http://sandbox-bpp:3002/api/webhook"
+      url: "http://seller-app:3002/api/webhook"
     endpoints:
+      - discover
       - select
       - init
       - confirm
       - status
       - cancel
       - support
+      - on_publish

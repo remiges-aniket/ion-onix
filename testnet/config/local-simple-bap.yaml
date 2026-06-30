@@ -16,6 +16,16 @@ http:
     idle: 30
 pluginManager:
   root: ./plugins
+plugins:
+  otelsetup:
+    id: otelsetup
+    config:
+      serviceName: "beckn-onix-bap-testnet"
+      enableMetrics: "false"
+      enableTracing: "false"
+      enableLogs: "false"
+      producer: 'dc-bap.ion.id'
+      producerType: "bap"
 modules:
   - name: bapTxnReceiver
     path: /bap/receiver/
@@ -82,6 +92,7 @@ modules:
     handler:
       type: std
       role: bap
+      subscriberId: dc-bap.ion.id
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200

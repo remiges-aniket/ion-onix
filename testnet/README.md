@@ -1,142 +1,94 @@
-## ION Testnet
+# ION Testnet
 
-Inspired by the [Beckn local retail devkit and testnet](https://github.com/beckn/local-retail/tree/main/testnet/retail-devkit), the ion Testnet provides a docker compose based all in one development and testing platform for ION (Indonesia Open Network)
+The ION Testnet is a self-contained local development environment for testing Beckn protocol message flows on the Indonesia Open Network (ION). It bundles a BAP ONIX adapter, a BPP ONIX adapter, a sample seller application, and a lightweight monitoring collector — all running together in Docker Compose.
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Repository Structure](#repository-structure)
-- [Quick Start](#quick-start)
-- [Importing Postman Collections](#importing-postman-collections)
-- [Making API Requests](#making-api-requests)
-- [Architecture](#architecture)
-- [Troubleshooting](#troubleshooting)
-
----
-
-## Overview
-
-The ION Testnet enables developers to simulate and test decentralised commerce transactions in different sectors over the beckn protocol. It bundles together a docker compose based network containing the ONIX adapters, simulated seller apps, thin monitoring service for troubleshooting. In addition additional guides and postman collections are provided to help developers quickly build Buyer Apps and Seller Apps.
+Use the testnet to:
+- Learn the Beckn message flow (discover → select → init → confirm → status) hands-on
+- Test your buyer or seller application before connecting to the live network
+- Run the provided Postman collections against a fully local stack
 
 ---
 
 ## Prerequisites
 
-Before you begin, ensure the following tools are installed on your system:
+- **Docker** and **Docker Compose** — [Install Docker](https://docs.docker.com/engine/install/)
+- **Postman** (optional, for the included collections) — [Download Postman](https://www.postman.com/downloads/)
 
-- **Git** — to clone this repository
-- **Docker** and **Docker Compose** — to run the adapter stack
-  - [Install Docker](https://docs.docker.com/engine/install/)
-  - Docker Compose is included with Docker Desktop; for Linux, follow the [Compose plugin guide](https://docs.docker.com/compose/install/)
-- **Postman** — to import and run the test collections
-  - [Download Postman](https://www.postman.com/downloads/)
-
----
-
-## Repository Structure
-
-```text
-testnet/
-├── config/          # Configuration files for the adapter
-├── docker-compose-testnet.yml  # docker compose 
-└── postman/         # Postman collections for testing
-```
+No ION Central account or ngrok is required — the testnet runs entirely on your machine.
 
 ---
 
 ## Quick Start
 
-Follow these steps to get the ION testnet running locally:
-
-**1. Clone the repository**
-
 ```bash
 git clone https://github.com/indonesiaopennetwork/ion-onix.git
-cd ion-onix
-```
-
-**2. Start the adapter stack**
-
-```bash
-cd testnet
+cd ion-onix/testnet
 docker compose -f docker-compose-testnet.yml up --build
 ```
 
-This command builds and starts all required services. The first run may take a few minutes to pull and build Docker images.
+The first run pulls and builds images; allow a few minutes. Once running, the stack exposes:
 
-**3. Verify the stack is running**
+| Service | URL |
+|---------|-----|
+| BAP ONIX Adapter (caller) | `http://localhost:8081/bap/caller/` |
+| BAP ONIX Adapter (receiver) | `http://localhost:8081/bap/receiver/` |
+| BPP ONIX Adapter (caller) | `http://localhost:8082/bpp/caller/` |
+| BPP ONIX Adapter (receiver) | `http://localhost:8082/bpp/receiver/` |
+| Buyer App sample | `http://localhost:3001` |
+| Seller App sample | `http://localhost:3002` |
 
-Once the containers are up, verify the services are healthy:
+---
+
+## Verifying the Stack
 
 ```bash
-docker compose -f docker-compose-adapter.yml ps
+docker compose -f docker-compose-testnet.yml ps
 ```
 
-All services should show a `running` or `healthy` status.
+All services should show `running` or `healthy`.
 
 ---
 
-## Importing Postman Collections
+## Running the Postman Collections
 
-The `postman/` directory contains pre-built collections for testing the ION APIs in various sectors.
+The `postman/` directory contains pre-built request collections for testing ION message flows.
 
-**Step 1 — Open Postman**
+1. Open Postman and click **Import**.
+2. Select **File**, navigate to `postman/`, choose a collection `.json` file.
+3. Run requests in the order shown — they follow the Beckn transaction sequence:
+   `discover` → `on_discover` → `select` → `on_select` → `init` → `on_init` → `confirm` → `on_confirm`
 
-Launch the Postman desktop application.
-
-**Step 2 — Import the collection**
-
-1. Click **Import** in the top-left corner of the Postman window.
-2. Select **File** in the import modal.
-3. Navigate to the `postman/` directory in your cloned repository.
-4. Select the relevant collection file (`.json`) and click **Open**.
-
----
-
-## Making API Requests
-
-Once the stack is running and the collection is imported:
-
-1. Expand the collection in the Postman sidebar to view available requests.
-2. Click on a request to open it.
-3. Review the request method, URL, and body.
-4. Click **Send** to execute the request.
-5. The response will appear in the panel below.
-
-The collections are ordered to reflect a typical beckn transaction flow (for example: `discover` → `on_discover` → `select` → `on_select`, and so on). Run them in sequence for an end-to-end test.
+Check Docker logs to see messages passing through the adapters:
+```bash
+docker compose -f docker-compose-testnet.yml logs -f onix-bap
+docker compose -f docker-compose-testnet.yml logs -f onix-bpp
+```
 
 ---
 
 ## Architecture
 
-The devkit simulates a beckn-compliant Buyer App (BAP-Beckn Application Platform) and Seller App (BPP-Beckn Provider Platform) ONIX adapter pair locally. Here is a high-level overview of the data flow:
+The testnet simulates a complete Beckn transaction between a buyer and a seller on a single machine:
 
-<img src="./resources/ion-testnet-na.png" width="70%" />
+```
+Postman / Buyer App
+      │
+      │  POST /bap/caller/<action>
+      ▼
+  BAP ONIX Adapter  ─── signs request, routes via network ───►  BPP ONIX Adapter
+  (port 8081)                                                     (port 8082)
+      ▲                                                                │
+      │  routes on_* responses back                                    │  forwards to
+      └─────────────────────────────────────────────────────  Seller App (port 3002)
+```
+
+The seller app bundled in the testnet returns pre-packaged sample responses, so you can see the full round-trip without building any application code.
+
+See `developing_with_testnet.md` for instructions on connecting your own buyer or seller application to the testnet.
 
 ---
 
-## Troubleshooting
-
-**Containers fail to start**
-
-Check for port conflicts. Inspect logs with:
-
-```bash
-docker compose -f docker-compose-testnet.yml logs
-```
-
-**Postman requests return connection errors**
-
-Ensure the Docker stack is running and the `BASE_URL` collection variable points to the correct host and port.
-
-**Images fail to build**
-
-Make sure Docker has sufficient resources allocated (RAM/CPU) and that you have a stable internet connection for pulling base images.
-
-**Stopping the stack**
+## Stopping the Stack
 
 ```bash
 docker compose -f docker-compose-testnet.yml down
@@ -144,7 +96,19 @@ docker compose -f docker-compose-testnet.yml down
 
 ---
 
-## License
+## Troubleshooting
 
-This project is part of the Indonesia Open Network ecosystem. Refer to the root repository for license details.
+**Containers fail to start**
 
+Check for port conflicts (8081, 8082, 3001, 3002, 6379) and inspect logs:
+```bash
+docker compose -f docker-compose-testnet.yml logs
+```
+
+**Postman requests return connection errors**
+
+Ensure the stack is running and the `BASE_URL` variable in the Postman collection points to `http://localhost:8081`.
+
+**Out of memory / build failures**
+
+Make sure Docker has at least 4 GB of RAM allocated (Docker Desktop → Settings → Resources).

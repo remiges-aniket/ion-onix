@@ -27,7 +27,7 @@ plugins:
       enableLogs: "true"
       timeInterval: "5"
       auditFieldsConfig: "/app/config/audit-fields.yaml" # this can be git url
-      producer: "sandbox.open-kitchen.com"
+      producer: 'greedy-pony-bubbling.ngrok-free.dev'
       producerType: "bpp"
 modules:
   - name: bppTxnReceiver
@@ -53,12 +53,12 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: sandbox.open-kitchen.com
-            keyId: 76EU8h2x8sGsY9c659SFNT7pJEJntehLHfr3p4oXVy3mCDMn5GFiMg
-            signingPrivateKey: 4YRjrBFInRb8OLN1PiwUM9qutrJy2bvzcWPNy47VAD4=
-            signingPublicKey: AAUhITzcjMbmPikr/UV5T8/Zp8+NWZ/NrVVateA5eiQ=
-            encrPrivateKey: 4YRjrBFInRb8OLN1PiwUM9qutrJy2bvzcWPNy47VAD4=
-            encrPublicKey: AAUhITzcjMbmPikr/UV5T8/Zp8+NWZ/NrVVateA5eiQ=
+            networkParticipant: 'greedy-pony-bubbling.ngrok-free.dev'
+            keyId: '76EU7hRSVYMcJANsMMrhFPHKd5CEJNzAWpz4hVC7FQhKqnm6VyMpRb'
+            signingPrivateKey: 'aMHqwCRjww9u4TFD0CTT+gSNg3V4Ehw/ECwfZIgyEEg='
+            signingPublicKey: 'ByLFEBucCC4bWAS9bEJAiEfDKw6QqI0HesI7SAALPN8='
+            encrPrivateKey: 'aMHqwCRjww9u4TFD0CTT+gSNg3V4Ehw/ECwfZIgyEEg='
+            encrPublicKey: 'ByLFEBucCC4bWAS9bEJAiEfDKw6QqI0HesI7SAALPN8='
         schemaValidator:
           id: schemav2validator
           config:
@@ -90,6 +90,7 @@ modules:
     handler:
       type: std
       role: bpp
+      subscriberId: 'greedy-pony-bubbling.ngrok-free.dev'
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200
@@ -108,12 +109,12 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: sandbox.open-kitchen.com
-            keyId: 76EU8h2x8sGsY9c659SFNT7pJEJntehLHfr3p4oXVy3mCDMn5GFiMg
-            signingPrivateKey: 4YRjrBFInRb8OLN1PiwUM9qutrJy2bvzcWPNy47VAD4=
-            signingPublicKey: AAUhITzcjMbmPikr/UV5T8/Zp8+NWZ/NrVVateA5eiQ=
-            encrPrivateKey: 4YRjrBFInRb8OLN1PiwUM9qutrJy2bvzcWPNy47VAD4=
-            encrPublicKey: AAUhITzcjMbmPikr/UV5T8/Zp8+NWZ/NrVVateA5eiQ=
+            networkParticipant: 'greedy-pony-bubbling.ngrok-free.dev'
+            keyId: '76EU7hRSVYMcJANsMMrhFPHKd5CEJNzAWpz4hVC7FQhKqnm6VyMpRb'
+            signingPrivateKey: 'aMHqwCRjww9u4TFD0CTT+gSNg3V4Ehw/ECwfZIgyEEg='
+            signingPublicKey: 'ByLFEBucCC4bWAS9bEJAiEfDKw6QqI0HesI7SAALPN8='
+            encrPrivateKey: 'aMHqwCRjww9u4TFD0CTT+gSNg3V4Ehw/ECwfZIgyEEg='
+            encrPublicKey: 'ByLFEBucCC4bWAS9bEJAiEfDKw6QqI0HesI7SAALPN8='
         schemaValidator:
           id: schemav2validator
           config:
@@ -139,7 +140,7 @@ modules:
           - id: reqpreprocessor
             config:
               uuidKeys: transaction_id,message_id
-              role: bpp          
+              role: bpp
       steps:
         - addRoute
         - sign

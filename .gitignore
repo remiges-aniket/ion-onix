@@ -1,1 +1,6 @@
 .DS_Store
+.claude/settings.json
+.claude/skills/clean-code/SKILL.md
+.claude/skills/go-performance/SKILL.md
+.claude/skills/logharbour-logging/SKILL.md
+.claude/skills/tdd-testing/SKILL.md

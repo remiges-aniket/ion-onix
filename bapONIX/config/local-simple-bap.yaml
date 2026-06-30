@@ -28,7 +28,7 @@ plugins:
       enableLogs: "true"
       timeInterval: "5"
       auditFieldsConfig: "/app/config/audit-fields.yaml" # this can be git url
-      producer: "sandbox.food-finder.com"
+      producer: 'camera-outmatch-emptiness.ngrok-free.dev'
       producerType: "bap"
 
 modules:
@@ -55,12 +55,12 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: sandbox.food-finder.com
-            keyId: 76EU8y5vi36wsggHNp46dGVqEKEJ4Up7jj3fJ2nxUD7AXAh47gVEDF
-            signingPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            signingPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
-            encrPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            encrPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
+            networkParticipant: 'camera-outmatch-emptiness.ngrok-free.dev'
+            keyId: '76EU8va3Vbsg3foqotmLEAsXBqUFwbNu59rfFs7wxVi6BncBWvBN3b'
+            signingPrivateKey: 'a+MNgTYjsJZ5n3uZM4KiZJX0bynuLtsUwpt33tKOFc4='
+            signingPublicKey: 'GtYa8aZWknrYGkEa4PEQ1oNjC012XY4KLyrWeGll79E='
+            encrPrivateKey: 'a+MNgTYjsJZ5n3uZM4KiZJX0bynuLtsUwpt33tKOFc4='
+            encrPublicKey: 'GtYa8aZWknrYGkEa4PEQ1oNjC012XY4KLyrWeGll79E='
         schemaValidator:
           id: schemav2validator
           config:
@@ -94,6 +94,7 @@ modules:
     handler:
       type: std
       role: bap
+      subscriberId: 'camera-outmatch-emptiness.ngrok-free.dev'
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200
@@ -112,12 +113,12 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: sandbox.food-finder.com
-            keyId: 76EU8y5vi36wsggHNp46dGVqEKEJ4Up7jj3fJ2nxUD7AXAh47gVEDF
-            signingPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            signingPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
-            encrPrivateKey: rrNtVgyASCGlo+ebsJaA37D5CZYZVfT0JA5/vlkTeV0=
-            encrPublicKey: oFIk7KqCqvqRYkLMjQqiaKM5oOozkYT64bfLuc8p/SU=
+            networkParticipant: 'camera-outmatch-emptiness.ngrok-free.dev'
+            keyId: '76EU8va3Vbsg3foqotmLEAsXBqUFwbNu59rfFs7wxVi6BncBWvBN3b'
+            signingPrivateKey: 'a+MNgTYjsJZ5n3uZM4KiZJX0bynuLtsUwpt33tKOFc4='
+            signingPublicKey: 'GtYa8aZWknrYGkEa4PEQ1oNjC012XY4KLyrWeGll79E='
+            encrPrivateKey: 'a+MNgTYjsJZ5n3uZM4KiZJX0bynuLtsUwpt33tKOFc4='
+            encrPublicKey: 'GtYa8aZWknrYGkEa4PEQ1oNjC012XY4KLyrWeGll79E='
         schemaValidator:
           id: schemav2validator
           config:

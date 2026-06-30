@@ -2,7 +2,7 @@ routingRules:
   - version: "2.0.0"
     targetType: "url"
     target:
-      url: "http://sandbox-bap:3001/api/bap-webhook"
+      url: "http://host.docker.internal:3001/api/bap-webhook"
     endpoints:
       - on_discover
       - on_select
